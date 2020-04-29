@@ -1,0 +1,46 @@
+﻿@model NewsMan.ViewModels.ResultListingModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+<span class="badge badge-primary"><h3>Results</h3></span>
+<p>Thank you! Here are the results:</p>
+
+<div class="row">
+    <div class="col-md-10">
+        <table class="table table-responsive">
+            <tr><th>Question</th><th>Your Answer</th></tr>
+            @for (int i = 0; i < @Model.Answers.Count(); i++)
+            {
+                <tr>
+                    @*<td>
+                        @Html.HiddenFor(a => @Model.Answers[i].QMaster.Id)
+                    </td>*@
+                    <td>
+                        @Html.ValueFor(q => @Model.Answers[i].QMaster.Question)
+                    </td>
+                    <td>
+                        @Html.ValueFor(a => @Model.Answers[i].AnswerText)
+                    </td>
+
+                    @*<td>
+                        @Html.DropDownListFor(a => @Model.Answers[i].Answer,
+                                new SelectList(@Model.AnswerOptions, "Val", "Answer"), "~ Select ~")
+                    </td>*@
+                </tr>
+            }
+        </table>
+
+        <div class="progress">
+            <div class="progress-bar bg-success" style="width:40%">
+                Free Space
+            </div>
+            <div class="progress-bar bg-warning" style="width:10%">
+                Warning
+            </div>
+            <div class="progress-bar bg-danger" style="width:20%">
+                Danger
+            </div>
+        </div>
+    </div>   
+</div>
