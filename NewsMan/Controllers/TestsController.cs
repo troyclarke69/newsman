@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using NewsMan.Data.Interfaces;
 using NewsMan.Data.Models;
 using NewsMan.ViewModels;
+using System;
+using System.Linq;
 
 namespace NewsMan.Controllers
 {
@@ -84,7 +84,7 @@ namespace NewsMan.Controllers
 
         public IActionResult Index()
         {
-            
+
             var sessionId = string.Empty;
             if (TempData["SessionId"] == null)
             {
@@ -224,19 +224,7 @@ namespace NewsMan.Controllers
         public IActionResult Index4()
         {
 
-            //var sessionId = string.Empty;
-            //if (TempData["SessionId"] == null)
-            //{
-            //    sessionId = Guid.NewGuid().ToString();
-
-            //    // store the session ID in TempData
-            //    TempData["SessionId"] = sessionId;
-            //}
-            //TempData.Keep();
-
             var sessionId = TempData["SessionId"].ToString();
-
-
 
             var questionModel = _questions.GetAllByLevel(0);
             var q = questionModel.Select(q => new QuestionListingModel
@@ -248,8 +236,82 @@ namespace NewsMan.Controllers
 
             }).ToList();
 
-            // THIS IS A HACK ?? ... Not needed for this page
-            // pre-load the survey (answer) model... 
+            // load model for UI ... ALL ANSWERED questions
+            var answerModel = _answers.GetAllBySurvey(sessionId);
+            var a = answerModel.Select(a => new SurveyListingModel
+            {
+                Id = a.Id,
+                SessionId = a.SessionId,
+                QMaster = a.QMaster,
+                Answer = a.Answer,
+                AnswerText = _answerOptions.GetAnswerText(a.QMaster.Key, a.Answer),
+                Votes = _answers.GetTotalVotes(a.QMaster.Id, a.QMaster.Key),
+                Percentage = _answers.GetAnswerPercentage(_answers.GetTotalVotes(a.QMaster.Id, a.QMaster.Key),
+                                _answers.GetTotalSessions())
+
+            }).ToList();
+
+
+            // first, get all questions/answers based on the current session
+            //var surveySummary = _answers.GetAllBySurvey(sessionId);
+
+            //var answerSummary = _answers.GetAllSurveyResults(sessionId);
+            //// second, load up the SurveyAnswerListingModel ... loop through each question/answer combo and return stats
+            //var a_s = answerSummary.Select(a => new SurveyAnswerListingModel
+            //{
+            //    Id = a.Id,
+            //    Key = a.QMaster.Key,
+            //    Val = a.AMaster.Val,
+            //    AnswerText = _answerOptions.GetAnswerText(a.QMaster.Key, a.AMaster.Val),
+            //    Votes = _answers.GetTotalVotes(a.QMaster.Id, a.QMaster.Key),
+            //    Percentage = _answers.GetAnswerPercentage(_answers.GetTotalVotes(a.QMaster.Id, a.QMaster.Key),
+            //                    _answers.GetTotalSessions())
+
+            //}).ToList();
+
+
+            //// third, compile data ... 
+            //var s = surveySummary.Select(a => new SurveySummaryModel
+            //{
+            //    QuestionId = a.QMaster.Id,
+            //    AnswerKey = a.QMaster.Key,
+            //    SessionAnswer = a.Answer,
+            //    AnswerText = _answerOptions.GetAnswerText(a.QMaster.Key, a.Answer),
+            //    AnswerStats = a_s
+
+
+            //}).ToList();
+
+            var model = new ResultListingModel
+            {
+                TotalSessions = _answers.GetTotalSessions(),
+                Answers = a
+                //Summary = s
+
+            };
+
+            TempData.Keep();
+            return View(model);
+        }
+
+        public IActionResult Index5()
+        {
+
+            var sessionId = TempData["SessionId"].ToString();
+
+            // Get all questions in survey
+            //var questionModel = _questions.GetAllByLevel(1);
+            //var q = questionModel.Select(q => new QuestionListingModel
+            //{
+            //    Id = q.Id,
+            //    Level = q.Level,
+            //    Order = q.Order,
+            //    Question = q.Question
+
+            //}).ToList();
+
+            //// THIS IS A HACK ??
+            //// pre-load the survey (answer) model... 
             //foreach (var row in q)
             //{
             //    var question = _questions.Get(row.Id);
@@ -262,33 +324,40 @@ namespace NewsMan.Controllers
             //    _answers.Add(newRow);
             //}
 
-            // load model for UI ... ALL ANSWERED questions
-            var answerModel = _answers.GetAllBySurvey(sessionId);
+            // Get all questions and user-answers 
+            var answerModel = _answers.GetAllBySessionId(sessionId);
             var a = answerModel.Select(a => new SurveyListingModel
             {
                 Id = a.Id,
                 SessionId = a.SessionId,
                 QMaster = a.QMaster,
-                Answer = a.Answer,
-                AnswerText = _answerOptions.GetAnswerText(a.QMaster.Key, a.Answer)
+                Answer = a.Answer
 
             }).ToList();
 
-            // This is not needed but leaving it in ...
-            //var answerOptions = _answerOptions.GetAllByKey(4);
-            //var ao = answerOptions.Select(a => new AnswerListingModel
+            // Get all answer options for the above
+            //IEnumerable<AMaster> options;
+            //foreach(var q in a)
             //{
-            //    Id = a.Id,
-            //    Key = a.Key,
-            //    Val = a.Val,
-            //    Answer = a.Answer
+            //    options =+ _answerOptions.GetAllByKey(q.QMaster.Key);
+            //}
 
-            //}).ToList();
 
-            var model = new ResultListingModel
+            var answerOptions = _answerOptions.GetAllByKey(1);
+            var ao = answerOptions.Select(a => new AnswerListingModel
             {
-                Answers = a
-          
+                Id = a.Id,
+                Key = a.Key,
+                Val = a.Val,
+                Answer = a.Answer
+
+            }).ToList();
+
+            var model = new TestListingModel
+            {
+                //Questions = q,
+                Answers = a,
+                AnswerOptions = ao
             };
 
             TempData.Keep();

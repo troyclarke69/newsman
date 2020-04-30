@@ -1,11 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NewsMan.Data.Data;
+﻿using NewsMan.Data.Data;
 using NewsMan.Data.Interfaces;
 using NewsMan.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace NewsMan.Service.Services
 {

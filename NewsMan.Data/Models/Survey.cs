@@ -6,5 +6,6 @@
         public QMaster QMaster { get; set; }
         public string SessionId { get; set; }
         public int Answer { get; set; }
+        public AMaster AMaster { get; set; }
     }
 }

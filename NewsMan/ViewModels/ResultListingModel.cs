@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace NewsMan.ViewModels
 {
@@ -9,10 +6,7 @@ namespace NewsMan.ViewModels
     {
         public List<SurveyListingModel> Answers { get; set; }
         public List<SurveySummaryModel> Summary { get; set; }
-
-
-        //public List<QuestionListingModel> Questions { get; set; }
-        //public List<AnswerListingModel> AnswerOptions { get; set; }
+        public int TotalSessions { get; set; }
 
     }
 }

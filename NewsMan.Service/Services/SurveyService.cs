@@ -12,7 +12,6 @@ namespace NewsMan.Service.Services
     {
         private readonly NewsManDbContext _context;
         public SurveyService(NewsManDbContext context) { _context = context; }
-
         public void Add(Survey newSurvey)
         {
             _context.Add(newSurvey);
@@ -22,7 +21,7 @@ namespace NewsMan.Service.Services
         public void Delete(int id)
         {
             // This is written to delete multiples, and works with one
-            _context.Survey.Where(g => g.Id == id && g.Answer == 0)
+            _context.Survey.Where(g => g.Id == id)
                .ToList().ForEach(g => _context.Survey.Remove(g));
             _context.SaveChanges();
         }
@@ -47,20 +46,58 @@ namespace NewsMan.Service.Services
         public IEnumerable<Survey> GetAllBySessionId(string sessionId)
         {
             // return all UNANSWERED questions
+            // This is used for the HACK - initial creation of survey records before they are answered
+            // These '0' answers are deleted and replaced by the actual answers
             return GetAll().Where(s => s.SessionId == sessionId && s.Answer == 0);
         }
 
         public IEnumerable<Survey> GetAllBySurvey(string sessionId)
         {
-            // return all ANSWERED questions ... 'RESULTS' (Index4) page
+            // return all ANSWERED questions - including '0' (intentionally unanswered) ... 'RESULTS' (Index4) page
             return _context.Survey
                 .Include(a => a.QMaster)
-                .Where(s => s.SessionId == sessionId && s.Answer != 0);
+                .Where(s => s.SessionId == sessionId);
+        }
+
+        public IEnumerable<Survey> GetAllSurveyResults(string sessionId)
+        {
+            return _context.Survey
+                .Include(a => a.QMaster)
+                .Include(b => b.AMaster)
+                .Where(c => c.SessionId.Contains(sessionId));
+
+        }
+
+        //public IEnumerable<Survey> GetAllSessionResults(string sessionId)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        public decimal GetAnswerPercentage(int totalVotes, int totalSessions)
+        {
+            decimal result = (Convert.ToDecimal(totalVotes) / Convert.ToDecimal(totalSessions)) * 100;
+            result = Math.Round(result, 1);
+            return result;
+        }
+
+        public int GetTotalSessions()
+        {
+            var dist = _context.Survey.Select(s => s.SessionId).Distinct();
+            return dist.Count();
+
+        }
+
+        public int GetTotalVotes(int questionId, int answerId)
+        {
+            var v = _context.Survey.Where(a => a.QMaster.Id == questionId && a.Answer == answerId);
+            return v.Count();
         }
 
         public void SeedData()
         {
+            const int NUM_OF_SESSIONS = 10000;
             const int NUM_OF_QUESTIONS = 8; //set to QMaster.count
+
             string sessionId = string.Empty;
 
             // Look for any data first.
@@ -69,7 +106,7 @@ namespace NewsMan.Service.Services
                 return;   // DB has been seeded
             }
 
-            for (var x = 1; x <= 100; x++)
+            for (var x = 1; x <= NUM_OF_SESSIONS; x++)
             {
                 // simulate user session: each user/session answers all questions
                 sessionId = Guid.NewGuid().ToString();
@@ -89,7 +126,7 @@ namespace NewsMan.Service.Services
 
                     );
                     _context.SaveChanges();
-                }            
+                }
             }
         }
 

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Linq;
-using NewsMan.Data.Interfaces;
-using NewsMan.Data.Models;
-using NewsMan.ViewModels;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using NewsAPI;
 using NewsAPI.Constants;
 using NewsAPI.Models;
+using NewsMan.Data.Interfaces;
+using NewsMan.Data.Models;
+using NewsMan.ViewModels;
+using System;
+using System.Linq;
 
 namespace Googster.Controllers
 {

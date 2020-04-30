@@ -1,5 +1,3 @@
-using System;
-
 namespace NewsMan.Models
 {
     public class ErrorViewModel

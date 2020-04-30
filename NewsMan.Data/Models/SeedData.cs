@@ -32,8 +32,8 @@ namespace NewsMan.Data.Models
 
                     for (var y = 1; y < 100; y++)
                     {
-                        int rnd = new Random().Next(1,5);
-                      
+                        int rnd = new Random().Next(1, 5);
+
                         context.Survey.AddRange(
                             new Survey
                             {

@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NewsMan.Data.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NewsMan.Data.Data
 {

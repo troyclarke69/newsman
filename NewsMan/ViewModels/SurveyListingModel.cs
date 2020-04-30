@@ -9,5 +9,7 @@ namespace NewsMan.ViewModels
         public string SessionId { get; set; }
         public int Answer { get; set; }
         public string AnswerText { get; set; }
+        public int Votes { get; set; }
+        public decimal Percentage { get; set; }
     }
 }
