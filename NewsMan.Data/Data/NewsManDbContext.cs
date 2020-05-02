@@ -15,5 +15,13 @@ namespace NewsMan.Data.Data
         public DbSet<AMaster> AMaster { get; set; }
 
 
+        public DbSet<AnswerGroup> AnswerGroup { get; set; }
+        public DbSet<AnswerOption> AnswerOption { get; set; }
+        public DbSet<Result> Result { get; set; }
+        public DbSet<Session> Session { get; set; }
+        public DbSet<SurveyQuestion> SurveyQuestion { get; set; }
+        public DbSet<SurveyMaster> SurveyMaster { get; set; }
+        public DbSet<Question> Question { get; set; }
+
     }
 }

@@ -1,4 +1,3 @@
-/****** Script for SelectTopNRows command from SSMS  ******/
 SELECT TOP 10 [Id]    ,[SessionId]     ,[QMasterId]     ,[Answer]  FROM [NewsMan].[dbo].[Survey]
   --WHERE Answer = 5
   order by Id desc

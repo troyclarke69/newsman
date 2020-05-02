@@ -1,4 +1,4 @@
-﻿@model NewsMan.ViewModels.ResultListingModel
+﻿@model NewsMan.ViewModels.ResultSummaryListingModel
 @{
     ViewData["Title"] = "Index";
 }
@@ -9,47 +9,30 @@
 <div class="row">
     <div class="col-md-12">
 
-        <h4>Total Surveys: @Model.TotalSessions</h4>
+        <h4>Total Surveyors: @Model.TotalSessions</h4>
         <table class="table table-responsive table-striped">
 
-            <tr><th>Question</th><th>Your Answer</th><th colspan="2">Votes</th></tr>
-            @for (int i = 0; i < @Model.Answers.Count(); i++)
+            @foreach(var s in @Model.Results)
             {
-                <tr>
-                    @*<td>
-                    @Html.HiddenFor(a => @Model.Answers[i].QMaster.Id)
-                </td>*@
-                    <td>
-                        @Html.ValueFor(q => @Model.Answers[i].QMaster.Question)
-                    </td>
-                    <td>
-                        @Html.ValueFor(a => @Model.Answers[i].AnswerText)
-                    </td>
-                    <td>
-                        @Html.ValueFor(a => @Model.Answers[i].Votes)
-                    </td>
-                    <td>
-                        @Html.ValueFor(a => @Model.Answers[i].Percentage)%
-                    </td>
+            <tr>
+                <td>
+                    @Html.ValueFor(q => s.Survey.Id)
+                </td>
+                <td>
+                    @Html.ValueFor(q => s.Survey.Name)
+                </td>
+                <td>
+                    @Html.ValueFor(a => s.Survey.Purpose)
+                </td>
+                <td>
+                    @Html.ValueFor(a => s.Survey.DateOpen)
+                </td>
+                <td>
+                    @Html.ValueFor(a => s.Survey.DateClose)
+                </td>
 
-                    @*<td>
-                    @Html.DropDownListFor(a => @Model.Answers[i].Answer,
-                            new SelectList(@Model.AnswerOptions, "Val", "Answer"), "~ Select ~")
-                    </td>*@
-                </tr>
+            </tr>
             }
         </table>
-
-        @*<div class="progress">
-            <div class="progress-bar bg-success" style="width:40%">
-                Free Space
-            </div>
-            <div class="progress-bar bg-warning" style="width:10%">
-                Warning
-            </div>
-            <div class="progress-bar bg-danger" style="width:20%">
-                Danger
-            </div>
-        </div>*@
     </div>   
 </div>

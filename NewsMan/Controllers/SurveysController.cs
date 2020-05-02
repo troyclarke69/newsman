@@ -12,11 +12,13 @@ namespace NewsMan.Controllers
     {
         private readonly NewsManDbContext _context;
         private readonly ISurvey _survey;
+        private readonly IResult _result;
 
-        public SurveysController(NewsManDbContext context, ISurvey survey)
+        public SurveysController(NewsManDbContext context, ISurvey survey, IResult result)
         {
             _context = context;
             _survey = survey;
+            _result = result;
         }
 
         public IActionResult Seed()
@@ -32,6 +34,8 @@ namespace NewsMan.Controllers
 
             // create some test data if table is empty.
             _survey.SeedData();
+
+            _result.SeedData();
 
             return View(await _context.Survey.ToListAsync());
         }

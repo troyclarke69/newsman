@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NewsMan.Data.Interfaces;
 using NewsMan.Data.Models;
+using NewsMan.Service.Services;
 using NewsMan.ViewModels;
 using System;
 using System.Linq;
@@ -13,16 +14,32 @@ namespace NewsMan.Controllers
         private readonly ISurvey _answers;
         private readonly IAMaster _answerOptions;
 
-        public TestsController(IQMaster question, ISurvey survey, IAMaster answerOptions)
+        //Part 2 vars...
+        private readonly IResult _results;
+        private readonly ISeedService _seedService;
+        private readonly IQuestion _demoQuestions;
+        private readonly ISurveyMaster _demoSurveys;
+        private readonly ISessionUser _demoSessionUsers;
+        private readonly IAnswerOption _demoAnswerOptions;
+        
+
+        public TestsController(IQMaster question, ISurvey survey, IAMaster answerOptions, IResult results,
+                    ISeedService seedService, IQuestion demoQuestions, ISurveyMaster demoSurveyMasters,
+                        ISessionUser demoSessionUsers, IAnswerOption demoAnswerOptions)
         {
             _questions = question;
             _answers = survey;
             _answerOptions = answerOptions;
+            _results = results;
+            _seedService = seedService;
+            _demoQuestions = demoQuestions;
+            _demoAnswerOptions = demoAnswerOptions;
+            _demoSessionUsers = demoSessionUsers;
+            _demoSurveys = demoSurveyMasters;
         }
 
         public IActionResult InsertDataP1(TestListingModel tmodel)
         {
-            // -d Testing only ... this should be called from a pre-process for page 2 of the test (?) ...
             if (tmodel.Answers != null)
             {
                 // -d HACK: delete the pre-loaded entries for this sessionId. ANSWER == 0
@@ -41,10 +58,6 @@ namespace NewsMan.Controllers
                     };
                     _answers.Add(newSurvey);
                 }
-
-                // onto next page: /views/Tests/...
-                //tmodel.Answers = null;
-                //return View();
             }
 
             TempData.Keep();
@@ -53,7 +66,6 @@ namespace NewsMan.Controllers
 
         public IActionResult InsertDataP3(TestListingModel tmodel)
         {
-            // -d Testing only ... this should be called from a pre-process for page 2 of the test (?) ...
             if (tmodel.Answers != null)
             {
                 // -d HACK: delete the pre-loaded entries for this sessionId. ANSWER == 0
@@ -72,10 +84,6 @@ namespace NewsMan.Controllers
                     };
                     _answers.Add(newSurvey);
                 }
-
-                // onto next page: /views/Tests/...
-                //tmodel.Answers = null;
-                //return View();
             }
 
             TempData.Keep();
@@ -84,6 +92,11 @@ namespace NewsMan.Controllers
 
         public IActionResult Index()
         {
+
+            // seed 'Results' db if no data exists
+            //var result1 = _seedService.SeedSurveyMaster(10); //craate 10 surveys
+            //var result2 = _seedService.SeedAnswerGroup(5); //create 5 groups of answers ... each containing x options
+            //var result3 = _seedService.SeedResult();
 
             var sessionId = string.Empty;
             if (TempData["SessionId"] == null)
@@ -152,17 +165,6 @@ namespace NewsMan.Controllers
 
         public IActionResult Index3()
         {
-
-            //var sessionId = string.Empty;
-            //if (TempData["SessionId"] == null)
-            //{
-            //    sessionId = Guid.NewGuid().ToString();
-
-            //    // store the session ID in TempData
-            //    TempData["SessionId"] = sessionId;
-            //}
-            //TempData.Keep();
-
             var sessionId = TempData["SessionId"].ToString();
 
             var questionModel = _questions.GetAllByLevel(2);
@@ -269,7 +271,6 @@ namespace NewsMan.Controllers
 
             //}).ToList();
 
-
             //// third, compile data ... 
             //var s = surveySummary.Select(a => new SurveySummaryModel
             //{
@@ -278,8 +279,6 @@ namespace NewsMan.Controllers
             //    SessionAnswer = a.Answer,
             //    AnswerText = _answerOptions.GetAnswerText(a.QMaster.Key, a.Answer),
             //    AnswerStats = a_s
-
-
             //}).ToList();
 
             var model = new ResultListingModel
@@ -287,7 +286,6 @@ namespace NewsMan.Controllers
                 TotalSessions = _answers.GetTotalSessions(),
                 Answers = a
                 //Summary = s
-
             };
 
             TempData.Keep();
@@ -296,68 +294,29 @@ namespace NewsMan.Controllers
 
         public IActionResult Index5()
         {
-
             var sessionId = TempData["SessionId"].ToString();
 
-            // Get all questions in survey
-            //var questionModel = _questions.GetAllByLevel(1);
-            //var q = questionModel.Select(q => new QuestionListingModel
-            //{
-            //    Id = q.Id,
-            //    Level = q.Level,
-            //    Order = q.Order,
-            //    Question = q.Question
-
-            //}).ToList();
-
-            //// THIS IS A HACK ??
-            //// pre-load the survey (answer) model... 
-            //foreach (var row in q)
-            //{
-            //    var question = _questions.Get(row.Id);
-            //    var newRow = new Survey
-            //    {
-            //        SessionId = sessionId,
-            //        QMaster = question,
-            //        Answer = 0
-            //    };
-            //    _answers.Add(newRow);
-            //}
-
-            // Get all questions and user-answers 
-            var answerModel = _answers.GetAllBySessionId(sessionId);
-            var a = answerModel.Select(a => new SurveyListingModel
+            // load model for UI ... ALL ANSWERED questions
+            //var answerModel = _answers.GetAllBySurvey(sessionId);
+            var answerModel = _results.GetAllBySurvey(1);
+            var a = answerModel.Select(a => new ResultPart2ListingModel
             {
                 Id = a.Id,
-                SessionId = a.SessionId,
-                QMaster = a.QMaster,
-                Answer = a.Answer
+                Question = a.Question,
+                Survey = a.SurveyMaster,
+                Answer = a.AnswerOption.AnswerVal,
+                AnswerText = a.AnswerOption.AnswerText,
+                Votes = _results.GetTotalVotes(a.Question.Id, a.AnswerOption.Id),
+                Percentage = _answers.GetAnswerPercentage(_results.GetTotalVotes(a.Question.Id, a.AnswerOption.Id),
+                                _results.GetTotalSessions(1))
 
             }).ToList();
 
-            // Get all answer options for the above
-            //IEnumerable<AMaster> options;
-            //foreach(var q in a)
-            //{
-            //    options =+ _answerOptions.GetAllByKey(q.QMaster.Key);
-            //}
-
-
-            var answerOptions = _answerOptions.GetAllByKey(1);
-            var ao = answerOptions.Select(a => new AnswerListingModel
+            var model = new ResultSummaryListingModel
             {
-                Id = a.Id,
-                Key = a.Key,
-                Val = a.Val,
-                Answer = a.Answer
-
-            }).ToList();
-
-            var model = new TestListingModel
-            {
-                //Questions = q,
-                Answers = a,
-                AnswerOptions = ao
+                TotalSessions = _results.GetTotalSessions(1),
+                Results = a
+                //Summary = s
             };
 
             TempData.Keep();

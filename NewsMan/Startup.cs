@@ -40,6 +40,17 @@ namespace NewsMan
             services.AddScoped<IQMaster, QMasterService>();
             services.AddScoped<IAMaster, AMasterService>();
 
+            services.AddScoped<IResult, ResultService>();
+            services.AddScoped<ISurveyMaster, SurveyMasterService>();
+            services.AddScoped<ISessionUser, SessionUserService>();
+            services.AddScoped<IQuestion, QuestionService>();
+            services.AddScoped<IAnswerOption, AnswerOptionService>();
+            services.AddScoped<IAnswerGroup, AnswerGroupService>();
+            services.AddScoped<ISurveyQuestion, SurveyQuestionService>();
+            services.AddScoped<ISeedService, SeedService>();
+
+
+
             // Installed NuGet: Microsoft.EnttityFramework.SqlServer (.useSqlServer)
             services.AddDbContext<NewsManDbContext>
                 (options =>
